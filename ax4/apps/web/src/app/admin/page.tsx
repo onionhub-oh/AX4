@@ -1,0 +1,18 @@
+import { cookies } from "next/headers";
+import { productRepository } from "@ax4/db";
+import { formatWon } from "@ax4/domain";
+import { PageHeading } from "@/components/page-heading";
+import { AdminProductToggle } from "@/components/admin-product-toggle";
+import { Activity, AlertTriangle, Bot, Package, ShoppingCart, TrendingUp } from "lucide-react";
+
+export default async function AdminPage() {
+  const products = await productRepository.list();
+  let pausedIds: string[] = [];
+  try { pausedIds = JSON.parse((await cookies()).get("ax4_admin_paused")?.value ?? "[]"); } catch {}
+  const metrics = [["오늘 주문", "24건", ShoppingCart],["매출", "₩3.42M", TrendingUp],["판매 SKU", `${products.length - pausedIds.length}`, Package],["AI 추천 성공", "94.8%", Bot]] as const;
+  return <div className="mx-auto max-w-[1440px] px-5 py-12 md:px-8 md:py-16"><PageHeading eyebrow="OPERATIONS" title="AX4 운영 콘솔" description="상품·재고·주문·AI 품질을 관리하는 mock 콘솔입니다. Supabase 연결 후 RBAC와 감사 로그가 적용됩니다." />
+    <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{metrics.map(([label,value,Icon]) => <div key={label} className="rounded-[22px] bg-[var(--ink)] p-5 text-white"><Icon className="text-[var(--lime)]" size={19} /><p className="mt-6 text-xs text-white/50">{label}</p><p className="mt-1 text-2xl font-black">{value}</p></div>)}</div>
+    <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_340px]"><section className="overflow-hidden rounded-[26px] bg-white"><div className="flex items-center justify-between border-b border-black/10 p-6"><h2 className="text-xl font-black">상품 관리</h2><button disabled className="rounded-full bg-black px-4 py-2 text-xs font-bold text-white opacity-45">CSV 업로드 · 연동 후</button></div><div className="overflow-x-auto"><table className="w-full min-w-[720px] text-left text-sm"><thead className="bg-[#f1f0eb] text-xs text-[var(--muted)]"><tr><th className="p-4">상품</th><th className="p-4">가격</th><th className="p-4">재고</th><th className="p-4">상태</th><th className="p-4">작업</th></tr></thead><tbody>{products.map((product) => { const paused = pausedIds.includes(product.id); return <tr key={product.id} className="border-t border-black/8"><td className="p-4"><strong>{product.name}</strong><span className="mt-1 block text-xs text-[var(--muted)]">{product.brand} · {product.id}</span></td><td className="p-4 font-semibold">{formatWon(product.price)}</td><td className="p-4">{product.stock}</td><td className="p-4"><span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${paused ? "bg-orange-100 text-orange-800" : "bg-green-100 text-green-800"}`}>{paused ? "판매 중지" : "판매 중"}</span></td><td className="p-4"><AdminProductToggle productId={product.id} paused={paused} /></td></tr>; })}</tbody></table></div></section>
+      <aside className="grid h-fit gap-4"><div className="rounded-[24px] bg-[#e9e7df] p-6"><p className="flex items-center gap-2 text-sm font-black"><Activity size={17} />운영 상태</p><div className="mt-5 grid gap-3 text-xs"><p className="flex justify-between"><span>Web / API</span><b className="text-green-700">정상</b></p><p className="flex justify-between"><span>데이터</span><b>MOCK</b></p><p className="flex justify-between"><span>결제</span><b>MOCK</b></p><p className="flex justify-between"><span>AI</span><b>RULE-BASED</b></p></div></div><div className="rounded-[24px] border border-orange-200 bg-orange-50 p-6"><p className="flex items-center gap-2 text-sm font-black text-orange-900"><AlertTriangle size={17} />연동 대기</p><p className="mt-3 text-xs leading-5 text-orange-900/70">실서비스 오픈 전 Supabase, Vercel, OpenAI, PortOne와 알림 채널의 계정·키 설정이 필요합니다.</p></div></aside>
+    </div></div>;
+}

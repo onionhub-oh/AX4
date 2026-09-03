@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #f7f6f1;
+  --ink: #171715;
+  --lime: #d7ff42;
+  --muted: #6d6c65;
+  --line: #d8d6ce;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+::selection { background: var(--lime); color: #111; }
+
+.eyebrow { font-size: 11px; font-weight: 900; letter-spacing: .18em; }
+.nav-link { position: relative; padding-block: .5rem; }
+.nav-link::after { content: ""; position: absolute; left: 0; right: 100%; bottom: 0; height: 2px; background: var(--ink); transition: right .25s ease; }
+.nav-link:hover::after { right: 0; }
+.header-icon { display: grid; width: 40px; height: 40px; place-items: center; border: 0; border-radius: 999px; background: transparent; transition: background .2s; }
+.header-icon:hover { background: rgba(0,0,0,.055); }
+.product-image { width: 100%; background-image: url('/images/ax4-running-lineup.png'); background-size: 310% auto; background-repeat: no-repeat; background-color: #ece8de; }
+.hairline { border-top: 1px solid rgba(0,0,0,.1); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

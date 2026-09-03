@@ -1,0 +1,33 @@
+name: AX4 CI
+
+on:
+  pull_request:
+    paths: ["ax4/**", ".github/workflows/ax4-ci.yml"]
+  push:
+    branches: [main]
+    paths: ["ax4/**", ".github/workflows/ax4-ci.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ax4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: ax4/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
